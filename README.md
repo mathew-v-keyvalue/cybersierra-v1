@@ -1,72 +1,118 @@
-# Claude Code
+# Cyber Sierra — Claude Code Plugin
 
-![](https://img.shields.io/badge/Node.js-18%2B-brightgreen?style=flat-square) [![npm]](https://www.npmjs.com/package/@anthropic-ai/claude-code)
+Compliance automation plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Orchestrates audit workflows, assessment creation, evidence collection, vendor risk management, and report generation through the **CyberSierra CLI**.
 
-[npm]: https://img.shields.io/npm/v/@anthropic-ai/claude-code.svg?style=flat-square
+## Directory Layout
 
-Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster by executing routine tasks, explaining complex code, and handling git workflows -- all through natural language commands. Use it in your terminal, IDE, or tag @claude on Github.
+```
+.claude-plugin/
+    plugin.json          # Plugin manifest — registers skills, binaries, and assets
+    marketplace.json     # Marketplace metadata for future publishing
 
-**Learn more in the [official documentation](https://code.claude.com/docs/en/overview)**.
+bin/
+    cybersierra          # CyberSierra CLI binary
 
-<img src="./demo.gif" />
+skills/
+    cyber-sierra/
+        SKILL.md                     # Main skill: router & orchestrator
+        _generated/
+            index.json               # Learned-skill discovery index
+        _internal/
+            planner/
+                SKILL.md             # Execution plan generator
+                references/
+                    execution-plan-schema.md
+                    planning-rules.md
+            reflection/
+                SKILL.md             # Post-execution reflection & learning
+                references/
+                    learning-rules.md
+                    reflection-schema.md
+                    skill-template.md
+            shared/
+                contracts.md         # Component contracts
+                manifest-usage.md    # How to query the CLI manifest
+                workflow-state.md    # Pipeline state schema
 
-## Get started
-> [!NOTE]
-> Installation via npm is deprecated. Use one of the recommended methods below.
+```
 
-For more installation options, uninstall steps, and troubleshooting, see the [setup documentation](https://code.claude.com/docs/en/setup).
+## CyberSierra Binary
 
-1. Install Claude Code:
+The `cybersierra` CLI executable is **not** included in this repository. You must build or obtain it separately and place it in `bin/`:
 
-    **MacOS/Linux (Recommended):**
-    ```bash
-    curl -fsSL https://claude.ai/install.sh | bash
-    ```
+```bash
+cp /path/to/compiled/cybersierra bin/cybersierra
+chmod +x bin/cybersierra
+```
 
-    **Homebrew (MacOS/Linux):**
-    ```bash
-    brew install --cask claude-code
-    ```
+Similarly, copy `agent-api.json` into `bin/`:
 
-    **Windows (Recommended):**
-    ```powershell
-    irm https://claude.ai/install.ps1 | iex
-    ```
+```bash
+cp /path/to/agent-api.json bin/agent-api.json
+```
 
-    **WinGet (Windows):**
-    ```powershell
-    winget install Anthropic.ClaudeCode
-    ```
+Claude Code plugins automatically add `bin/` to the PATH, so the skill can invoke `cybersierra` directly without any path configuration.
 
-    **NPM (Deprecated):**
-    ```bash
-    npm install -g @anthropic-ai/claude-code
-    ```
+## Local Installation
 
-2. Navigate to your project directory and run `claude`.
+1. **Clone this repository:**
 
-## Plugins
+   ```bash
+   git clone https://github.com/cyber-sierra/claude-plugin.git
+   cd claude-plugin
+   ```
 
-This repository includes several Claude Code plugins that extend functionality with custom commands and agents. See the [plugins directory](./plugins/README.md) for detailed documentation on available plugins.
+2. **Place the CyberSierra binary:**
 
-## Reporting Bugs
+   ```bash
+   cp /path/to/cybersierra bin/cybersierra
+   chmod +x bin/cybersierra
+   cp /path/to/agent-api.json bin/agent-api.json
+   ```
 
-We welcome your feedback. Use the `/bug` command to report issues directly within Claude Code, or file a [GitHub issue](https://github.com/anthropics/claude-code/issues).
+3. **Install the plugin in Claude Code:**
 
-## Connect on Discord
+   ```bash
+   claude plugin install /path/to/claude-plugin
+   ```
 
-Join the [Claude Developers Discord](https://anthropic.com/discord) to connect with other developers using Claude Code. Get help, share feedback, and discuss your projects with the community.
+4. **Verify the installation:**
 
-## Data collection, usage, and retention
+   ```bash
+   claude plugin list
+   ```
 
-When you use Claude Code, we collect feedback, which includes usage data (such as code acceptance or rejections), associated conversation data, and user feedback submitted via the `/bug` command.
+   You should see `cyber-sierra` listed.
 
-### How we use your data
+## Usage
 
-See our [data usage policies](https://code.claude.com/docs/en/data-usage).
+Once installed, ask Claude Code to perform compliance tasks:
 
-### Privacy safeguards
+- *"Run an audit for my organization"*
+- *"Create a vendor risk assessment"*
+- *"Collect evidence for SOC 2 controls"*
+- *"Generate a compliance report"*
+- *"Log in to Cyber Sierra"*
 
-We have implemented several safeguards to protect your data, including limited retention periods for sensitive information, restricted access to user session data, and clear policies against using feedback for model training.
+The plugin routes your request through the skill system, builds an execution plan from the CLI manifest, and runs it after your confirmation.
 
-For full details, please review our [Commercial Terms of Service](https://www.anthropic.com/legal/commercial-terms) and [Privacy Policy](https://www.anthropic.com/legal/privacy).
+## How It Works
+
+The plugin implements a multi-stage pipeline:
+
+1. **Router** — Parses the request, checks for matching learned skills, identifies relevant CLI modules
+2. **Planner** — Generates a Canonical Execution Plan from CLI manifest commands (when no learned skill matches)
+3. **Executor** — Runs the plan step-by-step, handling authentication and user confirmation for write operations
+4. **Reflection** — Evaluates execution quality and optionally persists successful workflows as reusable skills
+
+## Publishing
+
+This plugin is designed for eventual publication through the Claude Code plugin marketplace. The `.claude-plugin/marketplace.json` file contains the required metadata. Before publishing:
+
+1. Populate `icon`, `changelog`, and `minClaudeCodeVersion` fields in `marketplace.json`
+2. Ensure the `cybersierra` binary is available for all target platforms
+3. Follow the Claude Code plugin publishing guide (when available)
+
+## License
+
+See repository root for license details.
