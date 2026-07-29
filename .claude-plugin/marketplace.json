@@ -48,6 +48,13 @@
       "category": "productivity"
     },
     {
+      "name": "cyber-sierra",
+      "description": "Compliance automation plugin for Claude Code. Orchestrates audit workflows, assessment creation, evidence collection, vendor risk management, and report generation through the Cyber Sierra CLI.",
+      "version": "0.1.0",
+      "source": "./plugins/cyber-sierra",
+      "category": "security"
+    },
+    {
       "name": "explanatory-output-style",
       "description": "Adds educational insights about implementation choices and codebase patterns (mimics the deprecated Explanatory output style)",
       "version": "1.0.0",
